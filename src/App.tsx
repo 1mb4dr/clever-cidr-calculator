@@ -5,6 +5,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import SubnetCalculator from "./pages/SubnetCalculator";
+import ASNLookup from "./pages/ASNLookup";
+import TraceRoute from "./pages/TraceRoute";
 
 const queryClient = new QueryClient();
 
@@ -17,8 +19,8 @@ const App = () => (
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/subnet-calculator" element={<SubnetCalculator />} />
-          <Route path="/asn-lookup" element={<div className="p-8 text-center">ASN Lookup Tool - Coming Soon</div>} />
-          <Route path="/trace-route" element={<div className="p-8 text-center">Trace Route Tool - Coming Soon</div>} />
+          <Route path="/asn-lookup" element={<ASNLookup />} />
+          <Route path="/trace-route" element={<TraceRoute />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

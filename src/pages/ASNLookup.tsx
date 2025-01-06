@@ -3,8 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Globe, Search } from "lucide-react";
+import { Globe, Search, Home } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 interface ASNResponse {
   asn: string;
@@ -38,14 +47,43 @@ const ASNLookup = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-4 flex items-center justify-center gap-2">
-            <Globe className="h-8 w-8" />
-            ASN Lookup Tool
-          </h1>
-          <p className="text-muted-foreground">
-            Look up Autonomous System Numbers (ASN) and get detailed information
-          </p>
+        <div className="flex justify-between items-center mb-8">
+          <Link 
+            to="/" 
+            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+          >
+            <Home className="h-5 w-5" />
+            Back to Home
+          </Link>
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="p-4 w-[200px] space-y-2">
+                    <Link 
+                      to="/subnet-calculator" 
+                      className="block p-2 hover:bg-accent rounded-md"
+                    >
+                      Subnet Calculator
+                    </Link>
+                    <Link 
+                      to="/asn-lookup" 
+                      className="block p-2 hover:bg-accent rounded-md"
+                    >
+                      ASN Lookup
+                    </Link>
+                    <Link 
+                      to="/trace-route" 
+                      className="block p-2 hover:bg-accent rounded-md"
+                    >
+                      Trace Route
+                    </Link>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
 
         <form onSubmit={handleSearch} className="mb-8">

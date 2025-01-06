@@ -3,8 +3,17 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Navigation, MapPin, Signal } from "lucide-react";
+import { Navigation, MapPin, Signal, Home } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
 
 interface HopInfo {
   hop: number;
@@ -19,6 +28,27 @@ interface HopInfo {
   rtt: number;
 }
 
+const generateMockHops = (target: string): HopInfo[] => {
+  const countries = [
+    { country: "United States", city: "New York", lat: 40.7128, lon: -74.006 },
+    { country: "United Kingdom", city: "London", lat: 51.5074, lon: -0.1278 },
+    { country: "Germany", city: "Frankfurt", lat: 50.1109, lon: 8.6821 },
+    { country: "Japan", city: "Tokyo", lat: 35.6762, lon: 139.6503 },
+    { country: "Singapore", city: "Singapore", lat: 1.3521, lon: 103.8198 }
+  ];
+
+  return Array.from({ length: Math.floor(Math.random() * 3) + 3 }, (_, i) => {
+    const location = countries[Math.floor(Math.random() * countries.length)];
+    return {
+      hop: i + 1,
+      ip: `${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}.${Math.floor(Math.random() * 256)}`,
+      host: `router-${i + 1}.${location.city.toLowerCase()}.network.com`,
+      location,
+      rtt: Math.random() * 100 + i * 10
+    };
+  });
+};
+
 const TraceRoute = () => {
   const [host, setHost] = useState("");
   const [traceTarget, setTraceTarget] = useState("");
@@ -27,47 +57,9 @@ const TraceRoute = () => {
     queryKey: ["trace", traceTarget],
     queryFn: async () => {
       if (!traceTarget) return null;
-      // This is a mock response - in a real implementation, you'd need a backend service
-      // to perform the actual traceroute
-      const mockHops: HopInfo[] = [
-        {
-          hop: 1,
-          ip: "192.168.1.1",
-          host: "local-gateway",
-          location: {
-            country: "United States",
-            city: "New York",
-            lat: 40.7128,
-            lon: -74.0060
-          },
-          rtt: 1.2
-        },
-        {
-          hop: 2,
-          ip: "10.0.0.1",
-          host: "isp-router",
-          location: {
-            country: "United States",
-            city: "Chicago",
-            lat: 41.8781,
-            lon: -87.6298
-          },
-          rtt: 15.7
-        },
-        {
-          hop: 3,
-          ip: "8.8.8.8",
-          host: "dns-google",
-          location: {
-            country: "United States",
-            city: "Mountain View",
-            lat: 37.3861,
-            lon: -122.0839
-          },
-          rtt: 45.2
-        }
-      ];
-      return mockHops;
+      // Simulate network delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      return generateMockHops(traceTarget);
     },
     enabled: !!traceTarget
   });
@@ -80,6 +72,45 @@ const TraceRoute = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="max-w-4xl mx-auto">
+        <div className="flex justify-between items-center mb-8">
+          <Link 
+            to="/" 
+            className="flex items-center gap-2 text-primary hover:text-primary/80 transition-colors"
+          >
+            <Home className="h-5 w-5" />
+            Back to Home
+          </Link>
+          <NavigationMenu>
+            <NavigationMenuList>
+              <NavigationMenuItem>
+                <NavigationMenuTrigger>Tools</NavigationMenuTrigger>
+                <NavigationMenuContent>
+                  <div className="p-4 w-[200px] space-y-2">
+                    <Link 
+                      to="/subnet-calculator" 
+                      className="block p-2 hover:bg-accent rounded-md"
+                    >
+                      Subnet Calculator
+                    </Link>
+                    <Link 
+                      to="/asn-lookup" 
+                      className="block p-2 hover:bg-accent rounded-md"
+                    >
+                      ASN Lookup
+                    </Link>
+                    <Link 
+                      to="/trace-route" 
+                      className="block p-2 hover:bg-accent rounded-md"
+                    >
+                      Trace Route
+                    </Link>
+                  </div>
+                </NavigationMenuContent>
+              </NavigationMenuItem>
+            </NavigationMenuList>
+          </NavigationMenu>
+        </div>
+
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 flex items-center justify-center gap-2">
             <Navigation className="h-8 w-8" />

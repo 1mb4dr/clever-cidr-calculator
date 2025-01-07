@@ -9,6 +9,15 @@ interface PacketData {
   timestamp: string;
 }
 
+interface NetworkNode extends d3.SimulationNodeDatum {
+  id: string;
+}
+
+interface NetworkLink extends d3.SimulationLinkDatum<NetworkNode> {
+  protocol: string;
+  value: number;
+}
+
 export const NetworkFlow = ({ packets }: { packets: PacketData[] }) => {
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -19,13 +28,14 @@ export const NetworkFlow = ({ packets }: { packets: PacketData[] }) => {
     d3.select(svgRef.current).selectAll("*").remove();
 
     // Create nodes and links from packets
-    const nodes = new Set<string>();
+    const nodesSet = new Set<string>();
     packets.forEach(packet => {
-      nodes.add(packet.sourceIP);
-      nodes.add(packet.destinationIP);
+      nodesSet.add(packet.sourceIP);
+      nodesSet.add(packet.destinationIP);
     });
 
-    const links = packets.map(packet => ({
+    const nodes: NetworkNode[] = Array.from(nodesSet).map(id => ({ id }));
+    const links: NetworkLink[] = packets.map(packet => ({
       source: packet.sourceIP,
       target: packet.destinationIP,
       protocol: packet.protocol,
@@ -33,8 +43,8 @@ export const NetworkFlow = ({ packets }: { packets: PacketData[] }) => {
     }));
 
     // Set up the force simulation
-    const simulation = d3.forceSimulation(Array.from(nodes).map(id => ({ id })))
-      .force("link", d3.forceLink(links).id((d: any) => d.id))
+    const simulation = d3.forceSimulation<NetworkNode>(nodes)
+      .force("link", d3.forceLink<NetworkNode, NetworkLink>(links).id(d => d.id))
       .force("charge", d3.forceManyBody().strength(-100))
       .force("center", d3.forceCenter(400, 300));
 
@@ -51,7 +61,7 @@ export const NetworkFlow = ({ packets }: { packets: PacketData[] }) => {
 
     const node = svg.append("g")
       .selectAll("circle")
-      .data(simulation.nodes())
+      .data(nodes)
       .join("circle")
       .attr("r", 5)
       .attr("fill", "#69b3a2");
@@ -61,10 +71,10 @@ export const NetworkFlow = ({ packets }: { packets: PacketData[] }) => {
 
     simulation.on("tick", () => {
       link
-        .attr("x1", d => (d.source as any).x)
-        .attr("y1", d => (d.source as any).y)
-        .attr("x2", d => (d.target as any).x)
-        .attr("y2", d => (d.target as any).y);
+        .attr("x1", d => (d.source as NetworkNode).x!)
+        .attr("y1", d => (d.source as NetworkNode).y!)
+        .attr("x2", d => (d.target as NetworkNode).x!)
+        .attr("y2", d => (d.target as NetworkNode).y!);
 
       node
         .attr("cx", d => d.x!)

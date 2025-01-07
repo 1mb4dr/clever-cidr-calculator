@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Upload } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/lib/supabase";
+import { supabase } from "@/integrations/supabase/client";
 
 export const FileUploader = ({ onUploadSuccess }: { onUploadSuccess: (data: any) => void }) => {
   const [isLoading, setIsLoading] = useState(false);
@@ -30,6 +30,7 @@ export const FileUploader = ({ onUploadSuccess }: { onUploadSuccess: (data: any)
         description: "File uploaded and analyzed successfully",
       });
     } catch (error) {
+      console.error('Upload error:', error);
       toast({
         title: "Error processing file",
         description: "There was an error processing your PCAP file",

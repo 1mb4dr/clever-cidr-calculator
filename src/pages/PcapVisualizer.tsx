@@ -7,6 +7,8 @@ import { FileUploader } from "@/components/pcap/FileUploader";
 import { PacketSizeChart } from "@/components/pcap/PacketSizeChart";
 import { ProtocolDistribution } from "@/components/pcap/ProtocolDistribution";
 import { PacketTable } from "@/components/pcap/PacketTable";
+import { NetworkFlow } from "@/components/pcap/NetworkFlow";
+import { TimeSeriesAnalysis } from "@/components/pcap/TimeSeriesAnalysis";
 
 interface PacketData {
   timestamp: string;
@@ -14,6 +16,10 @@ interface PacketData {
   destinationIP: string;
   protocol: string;
   length: number;
+  info?: string;
+  sourcePort?: number;
+  destinationPort?: number;
+  flags?: string;
 }
 
 const PcapVisualizer = () => {
@@ -21,7 +27,7 @@ const PcapVisualizer = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-8">
           <Link 
             to="/" 
@@ -75,6 +81,24 @@ const PcapVisualizer = () => {
 
           {packets.length > 0 && (
             <>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Network Flow Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <NetworkFlow packets={packets} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle>Time Series Analysis</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <TimeSeriesAnalysis packets={packets} />
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle>Packet Size Analysis</CardTitle>

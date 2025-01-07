@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calculator, Globe, Navigation } from "lucide-react";
+import { Calculator, Globe, FileSearch } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -17,10 +17,10 @@ const Home = () => {
       path: "/asn-lookup"
     },
     {
-      title: "Trace Route",
-      description: "Visualize network path and packet routing across countries",
-      icon: Navigation,
-      path: "/trace-route"
+      title: "PCAP Visualizer",
+      description: "Visualize and analyze network packet captures in an intuitive way",
+      icon: FileSearch,
+      path: "/pcap-visualizer"
     }
   ];
 

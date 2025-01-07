@@ -6,7 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import SubnetCalculator from "./pages/SubnetCalculator";
 import ASNLookup from "./pages/ASNLookup";
-import TraceRoute from "./pages/TraceRoute";
+import PcapVisualizer from "./pages/PcapVisualizer";
 
 const queryClient = new QueryClient();
 
@@ -20,7 +20,7 @@ const App = () => (
           <Route path="/" element={<Home />} />
           <Route path="/subnet-calculator" element={<SubnetCalculator />} />
           <Route path="/asn-lookup" element={<ASNLookup />} />
-          <Route path="/trace-route" element={<TraceRoute />} />
+          <Route path="/pcap-visualizer" element={<PcapVisualizer />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

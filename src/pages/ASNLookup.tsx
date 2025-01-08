@@ -6,11 +6,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Globe, Search, Home } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
 import {
   NavigationMenu,
   NavigationMenuContent,
   NavigationMenuItem,
-  NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
@@ -32,8 +32,10 @@ const ASNLookup = () => {
     queryKey: ["asn", searchTerm],
     queryFn: async () => {
       if (!searchTerm) return null;
-      const response = await fetch(`https://api.bgpview.io/asn/${searchTerm}`);
-      const data = await response.json();
+      const { data, error } = await supabase.functions.invoke('asn-lookup', {
+        query: { asn: searchTerm }
+      });
+      if (error) throw error;
       return data.data as ASNResponse;
     },
     enabled: !!searchTerm

@@ -16,15 +16,40 @@ serve(async (req) => {
     if (!asn) {
       return new Response(
         JSON.stringify({ error: 'ASN parameter is required' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 400 
+        }
       )
     }
 
-    const response = await fetch(`https://api.bgpview.io/asn/${asn}`)
+    const cleanedAsn = asn.toString().trim().replace(/[^0-9]/g, '')
+    
+    if (!cleanedAsn) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid ASN format' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 400 
+        }
+      )
+    }
+
+    const response = await fetch(`https://api.bgpview.io/asn/${cleanedAsn}`)
     const data = await response.json()
 
+    if (data.status === 'error') {
+      return new Response(
+        JSON.stringify({ error: data.status_message || 'BGP View API error' }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
+          status: 400 
+        }
+      )
+    }
+
     return new Response(
-      JSON.stringify(data),
+      JSON.stringify(data.data),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {

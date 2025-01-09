@@ -14,6 +14,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface ASNResponse {
   asn: string;
@@ -28,22 +29,25 @@ const ASNLookup = () => {
   const [query, setQuery] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, isError } = useQuery({
     queryKey: ["asn", searchTerm],
     queryFn: async () => {
       if (!searchTerm) return null;
       const { data, error } = await supabase.functions.invoke('asn-lookup', {
-        body: { asn: searchTerm.trim() }
+        body: { asn: searchTerm }
       });
+      
       if (error) throw error;
       return data as ASNResponse;
     },
-    enabled: !!searchTerm
+    enabled: !!searchTerm,
+    retry: 1
   });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    setSearchTerm(query);
+    if (!query.trim()) return;
+    setSearchTerm(query.trim());
   };
 
   return (
@@ -112,20 +116,32 @@ const ASNLookup = () => {
                   <Button 
                     type="submit" 
                     className="mt-auto bg-blue-600 hover:bg-blue-700 text-white"
+                    disabled={isLoading || !query.trim()}
                   >
                     <Search className="mr-2" />
-                    Search
+                    {isLoading ? 'Searching...' : 'Search'}
                   </Button>
                 </div>
               </form>
 
               {isLoading && (
-                <div className="text-center text-gray-300 mt-4">Loading...</div>
+                <Card className="mt-6 bg-gray-700 border-gray-600">
+                  <CardHeader>
+                    <Skeleton className="h-6 w-48 bg-gray-600" />
+                    <Skeleton className="h-4 w-full bg-gray-600" />
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <Skeleton className="h-12 bg-gray-600" />
+                      <Skeleton className="h-12 bg-gray-600" />
+                    </div>
+                  </CardContent>
+                </Card>
               )}
 
-              {error && (
-                <div className="text-red-400 text-center mt-4">
-                  Error fetching ASN information. Please try again.
+              {isError && error && (
+                <div className="text-red-400 text-center mt-4 p-4 bg-red-900/20 rounded-md">
+                  {error instanceof Error ? error.message : 'Error fetching ASN information. Please try again.'}
                 </div>
               )}
 

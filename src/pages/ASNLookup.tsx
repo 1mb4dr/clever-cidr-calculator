@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ASNNavigation } from "@/components/asn/ASNNavigation";
 import { ASNSearchForm } from "@/components/asn/ASNSearchForm";
 import { ASNResult } from "@/components/asn/ASNResult";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 interface ASNResponse {
   asn: string;
@@ -23,9 +23,17 @@ const ASNLookup = () => {
   const { data, isLoading, error, isError } = useQuery({
     queryKey: ["asn", searchTerm],
     queryFn: async () => {
-      if (!searchTerm) return null;
+      if (!searchTerm) {
+        throw new Error("ASN is required");
+      }
+
+      const cleanedAsn = searchTerm.trim().replace(/[^0-9]/g, '');
+      if (!cleanedAsn) {
+        throw new Error("Invalid ASN format");
+      }
+
       const { data, error } = await supabase.functions.invoke('asn-lookup', {
-        body: { asn: searchTerm }
+        body: JSON.stringify({ asn: cleanedAsn })
       });
       
       if (error) {

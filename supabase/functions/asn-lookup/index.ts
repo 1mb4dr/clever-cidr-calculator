@@ -11,7 +11,8 @@ serve(async (req) => {
   }
 
   try {
-    const { asn } = await req.json()
+    const requestData = await req.json()
+    const { asn } = requestData
 
     if (!asn) {
       return new Response(

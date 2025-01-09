@@ -33,7 +33,7 @@ const ASNLookup = () => {
       }
 
       const { data, error } = await supabase.functions.invoke('asn-lookup', {
-        body: JSON.stringify({ asn: cleanedAsn })
+        body: { asn: cleanedAsn }
       });
       
       if (error) {

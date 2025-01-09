@@ -35,12 +35,35 @@ serve(async (req) => {
       )
     }
 
-    const response = await fetch(`https://api.bgpview.io/asn/${cleanedAsn}`)
-    const data = await response.json()
+    // Try primary API first (RIPE Stats)
+    try {
+      const response = await fetch(`https://stat.ripe.net/data/as-overview/data.json?resource=AS${cleanedAsn}`)
+      const data = await response.json()
+      
+      if (data.data && data.data.holder) {
+        // Format RIPE response to match our interface
+        return new Response(
+          JSON.stringify({
+            asn: cleanedAsn,
+            name: data.data.holder,
+            description: data.data.holder,
+            country_code: data.data.announced_by?.[0]?.country || 'Unknown',
+            prefix_count: data.data.announced_prefixes || 0
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+    } catch (error) {
+      console.error('RIPE API error:', error)
+    }
 
-    if (data.status === 'error') {
+    // Fallback to BGPView API
+    const bgpResponse = await fetch(`https://api.bgpview.io/asn/${cleanedAsn}`)
+    const bgpData = await bgpResponse.json()
+
+    if (bgpData.status === 'error') {
       return new Response(
-        JSON.stringify({ error: data.status_message || 'BGP View API error' }),
+        JSON.stringify({ error: bgpData.status_message || 'ASN lookup failed' }),
         { 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }, 
           status: 400 
@@ -49,13 +72,13 @@ serve(async (req) => {
     }
 
     return new Response(
-      JSON.stringify(data.data),
+      JSON.stringify(bgpData.data),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error) {
     console.error('Error in ASN lookup:', error)
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: 'Failed to lookup ASN information' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 500 }
     )
   }

@@ -33,7 +33,7 @@ const ASNLookup = () => {
     queryFn: async () => {
       if (!searchTerm) return null;
       const { data, error } = await supabase.functions.invoke('asn-lookup', {
-        query: { asn: searchTerm }
+        body: { asn: searchTerm }
       });
       if (error) throw error;
       return data.data as ASNResponse;

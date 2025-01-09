@@ -12,8 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const url = new URL(req.url)
-    const asn = url.searchParams.get('asn')
+    const { asn } = await req.json()
 
     if (!asn) {
       return new Response(

@@ -12,7 +12,8 @@ serve(async (req) => {
   }
 
   try {
-    const { asn } = await req.json()
+    const body = await req.text();
+    const { asn } = JSON.parse(body);
     
     if (!asn) {
       return new Response(
@@ -24,8 +25,8 @@ serve(async (req) => {
       )
     }
 
-    const response = await fetch(`https://api.bgpview.io/asn/${asn}`)
-    const data = await response.json()
+    const response = await fetch(`https://api.bgpview.io/asn/${asn}`);
+    const data = await response.json();
 
     if (data.status === 'error') {
       return new Response(

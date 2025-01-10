@@ -74,12 +74,12 @@ const PcapVisualizer = () => {
             </CardHeader>
             <CardContent>
               <div className="flex justify-center">
-                <FileUploader onUploadSuccess={setPackets} />
+                <FileUploader onUploadSuccess={(data) => setPackets(data?.packets || [])} />
               </div>
             </CardContent>
           </Card>
 
-          {packets.length > 0 && (
+          {packets && packets.length > 0 && (
             <>
               <Card>
                 <CardHeader>

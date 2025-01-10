@@ -32,27 +32,27 @@ const ASNLookup = () => {
         throw new Error("Invalid ASN format");
       }
 
-      const { data, error } = await supabase.functions.invoke('asn-lookup', {
-        body: { asn: cleanedAsn }
-      });
-      
-      if (error) {
+      // Direct fetch to BGPView API instead of using Supabase Edge Function
+      const response = await fetch(`https://api.bgpview.io/asn/${cleanedAsn}`);
+      const result = await response.json();
+
+      if (result.status === 'error') {
         toast({
           variant: "destructive",
           title: "Error",
-          description: error.message || 'Failed to lookup ASN information'
+          description: result.status_message || 'Failed to lookup ASN information'
         });
-        throw error;
+        throw new Error(result.status_message || 'ASN lookup failed');
       }
-      
-      if (data) {
+
+      if (result.data) {
         toast({
           title: "Success",
-          description: `Found information for AS${data.asn}`
+          description: `Found information for AS${result.data.asn}`
         });
       }
-      
-      return data as ASNResponse;
+
+      return result.data as ASNResponse;
     },
     enabled: !!searchTerm,
     retry: 1

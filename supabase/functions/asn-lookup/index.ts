@@ -19,7 +19,7 @@ serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'ASN parameter is required' }),
         { 
-          status: 400, 
+          status: 400,
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       )
@@ -27,6 +27,16 @@ serve(async (req) => {
 
     const response = await fetch(`https://api.bgpview.io/asn/${asn}`);
     const data = await response.json();
+
+    if (!response.ok) {
+      return new Response(
+        JSON.stringify({ error: data.status_message || 'Failed to fetch ASN data' }),
+        { 
+          status: response.status,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
 
     if (data.status === 'error') {
       return new Response(
@@ -49,7 +59,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({ error: error.message }),
       { 
-        status: 400,
+        status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )

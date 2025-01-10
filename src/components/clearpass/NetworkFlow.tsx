@@ -10,12 +10,16 @@ interface Node extends d3.SimulationNodeDatum {
   id: string;
   type: "device" | "switch" | "clearpass" | "radius" | "ad";
   label: string;
+  x?: number;
+  y?: number;
 }
 
 interface Link extends d3.SimulationLinkDatum<Node> {
   id: string;
   label: string;
   sequence: number;
+  source: Node;
+  target: Node;
 }
 
 export const NetworkFlow = ({ networkType, authMethod }: Props) => {
@@ -47,29 +51,79 @@ export const NetworkFlow = ({ networkType, authMethod }: Props) => {
     
     if (authMethod === "mac") {
       links.push(
-        { id: "1", source: "device", target: networkType === "wireless" ? "ap" : "switch", 
-          label: "1. MAC Auth Request", sequence: 1 },
-        { id: "2", source: networkType === "wireless" ? "ap" : "switch", target: "clearpass", 
-          label: "2. RADIUS Request", sequence: 2 },
-        { id: "3", source: "clearpass", target: networkType === "wireless" ? "ap" : "switch", 
-          label: "3. Auth Response", sequence: 3 }
+        { 
+          id: "1", 
+          source: nodes[0], 
+          target: nodes[1], 
+          label: "1. MAC Auth Request", 
+          sequence: 1 
+        },
+        { 
+          id: "2", 
+          source: nodes[1], 
+          target: nodes[2], 
+          label: "2. RADIUS Request", 
+          sequence: 2 
+        },
+        { 
+          id: "3", 
+          source: nodes[2], 
+          target: nodes[1], 
+          label: "3. Auth Response", 
+          sequence: 3 
+        }
       );
     } else {
       links.push(
-        { id: "1", source: "device", target: networkType === "wireless" ? "ap" : "switch", 
-          label: "1. 802.1X Request", sequence: 1 },
-        { id: "2", source: networkType === "wireless" ? "ap" : "switch", target: "clearpass", 
-          label: "2. RADIUS Request", sequence: 2 },
-        { id: "3", source: "clearpass", target: "radius", 
-          label: "3. Auth Request", sequence: 3 },
-        { id: "4", source: "radius", target: "ad", 
-          label: "4. Validate Credentials", sequence: 4 },
-        { id: "5", source: "ad", target: "radius", 
-          label: "5. Auth Response", sequence: 5 },
-        { id: "6", source: "radius", target: "clearpass", 
-          label: "6. Auth Result", sequence: 6 },
-        { id: "7", source: "clearpass", target: networkType === "wireless" ? "ap" : "switch", 
-          label: "7. Access Decision", sequence: 7 }
+        { 
+          id: "1", 
+          source: nodes[0], 
+          target: nodes[1], 
+          label: "1. 802.1X Request", 
+          sequence: 1 
+        },
+        { 
+          id: "2", 
+          source: nodes[1], 
+          target: nodes[2], 
+          label: "2. RADIUS Request", 
+          sequence: 2 
+        },
+        { 
+          id: "3", 
+          source: nodes[2], 
+          target: nodes[3], 
+          label: "3. Auth Request", 
+          sequence: 3 
+        },
+        { 
+          id: "4", 
+          source: nodes[3], 
+          target: nodes[4], 
+          label: "4. Validate Credentials", 
+          sequence: 4 
+        },
+        { 
+          id: "5", 
+          source: nodes[4], 
+          target: nodes[3], 
+          label: "5. Auth Response", 
+          sequence: 5 
+        },
+        { 
+          id: "6", 
+          source: nodes[3], 
+          target: nodes[2], 
+          label: "6. Auth Result", 
+          sequence: 6 
+        },
+        { 
+          id: "7", 
+          source: nodes[2], 
+          target: nodes[1], 
+          label: "7. Access Decision", 
+          sequence: 7 
+        }
       );
     }
 
@@ -135,23 +189,23 @@ export const NetworkFlow = ({ networkType, authMethod }: Props) => {
     node.append("text")
       .attr("dy", 40)
       .attr("text-anchor", "middle")
-      .attr("fill", "#fff")
+      .attr("fill", "#666")
       .text(d => d.label)
       .call(wrap, 100);
 
     // Update positions on each tick
     simulation.on("tick", () => {
       link.selectAll("path")
-        .attr("d", d => {
-          const dx = (d.target as Node).x! - (d.source as Node).x!;
-          const dy = (d.target as Node).y! - (d.source as Node).y!;
+        .attr("d", (d: Link) => {
+          const dx = d.target.x! - d.source.x!;
+          const dy = d.target.y! - d.source.y!;
           const dr = Math.sqrt(dx * dx + dy * dy);
-          return `M${(d.source as Node).x},${(d.source as Node).y}A${dr},${dr} 0 0,1 ${(d.target as Node).x},${(d.target as Node).y}`;
+          return `M${d.source.x},${d.source.y}A${dr},${dr} 0 0,1 ${d.target.x},${d.target.y}`;
         });
 
       link.selectAll("text")
-        .attr("x", d => ((d.source as Node).x! + (d.target as Node).x!) / 2)
-        .attr("y", d => ((d.source as Node).y! + (d.target as Node).y!) / 2);
+        .attr("x", (d: Link) => (d.source.x! + d.target.x!) / 2)
+        .attr("y", (d: Link) => (d.source.y! + d.target.y!) / 2);
 
       node
         .attr("transform", d => `translate(${d.x},${d.y})`);

@@ -32,27 +32,27 @@ const ASNLookup = () => {
         throw new Error("Invalid ASN format");
       }
 
-      // Direct fetch to BGPView API instead of using Supabase Edge Function
-      const response = await fetch(`https://api.bgpview.io/asn/${cleanedAsn}`);
-      const result = await response.json();
+      const { data: response, error: supabaseError } = await supabase.functions.invoke('asn-lookup', {
+        body: { asn: cleanedAsn }
+      });
 
-      if (result.status === 'error') {
+      if (supabaseError) {
         toast({
           variant: "destructive",
           title: "Error",
-          description: result.status_message || 'Failed to lookup ASN information'
+          description: supabaseError.message || 'Failed to lookup ASN information'
         });
-        throw new Error(result.status_message || 'ASN lookup failed');
+        throw supabaseError;
       }
 
-      if (result.data) {
+      if (response) {
         toast({
           title: "Success",
-          description: `Found information for AS${result.data.asn}`
+          description: `Found information for AS${response.asn}`
         });
       }
 
-      return result.data as ASNResponse;
+      return response as ASNResponse;
     },
     enabled: !!searchTerm,
     retry: 1

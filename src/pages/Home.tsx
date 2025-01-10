@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Calculator, Globe, FileSearch } from "lucide-react";
+import { Calculator, Globe, FileSearch, Shield } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Home = () => {
@@ -21,6 +21,12 @@ const Home = () => {
       description: "Visualize and analyze network packet captures in an intuitive way",
       icon: FileSearch,
       path: "/pcap-visualizer"
+    },
+    {
+      title: "ClearPass NAC Visualizer",
+      description: "Interactive visualization of ClearPass authentication flows",
+      icon: Shield,
+      path: "/clearpass-visualizer"
     }
   ];
 
@@ -31,7 +37,7 @@ const Home = () => {
         <p className="text-muted-foreground">Professional networking utilities for administrators and developers</p>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {tools.map((tool) => (
           <Link to={tool.path} key={tool.path} className="transform transition-all hover:scale-105">
             <Card className="h-full bg-card hover:bg-accent/10">
